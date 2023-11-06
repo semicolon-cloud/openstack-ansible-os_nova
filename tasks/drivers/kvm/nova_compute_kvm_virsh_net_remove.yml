@@ -16,6 +16,7 @@
 - name: Get information about libvirt default network
   command: "virsh net-info default"
   changed_when: false
+  failed_when: (default_net_info.rc != 0) and ('Network not found' not in default_net_info.stderr)
   register: default_net_info
 
 - name: Disable libvirt default network # noqa: no-changed-when
