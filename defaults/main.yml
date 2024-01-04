@@ -16,6 +16,8 @@
 
 # Enable/Disable barbican configurations
 nova_barbican_enabled: "{{ (groups['barbican_all'] is defined) and (groups['barbican_all'] | length > 0) }}"
+# Enable/Disable blazar configurations
+nova_blazar_enabled: "{{ (groups['blazar_all'] is defined) and (groups['blazar_all'] | length > 0) }}"
 # Enable/Disable designate configurations
 nova_designate_enabled: "{{ (groups['designate_all'] is defined) and (groups['designate_all'] | length > 0) }}"
 # Notification topics for designate.
@@ -358,6 +360,9 @@ nova_scheduler_default_filters:
   - ServerGroupAffinityFilter
   - NUMATopologyFilter
 
+nova_blazar_scheduler_filters:
+  - BlazarFilter
+
 nova_scheduler_extra_filters: []
 
 # This should be tuned depending on the number of compute hosts present in the
@@ -537,6 +542,9 @@ nova_services:
     condition: "{{ 'serialconsole' in nova_console_proxy_types }}"
     start_order: 5
     execstarts: "{{ nova_bin }}/nova-serialproxy {{ nova_backend_ssl | ternary('--ssl_only --cert ' ~ nova_ssl_cert ~ ' --key ' ~ nova_ssl_key, '') }}"
+
+nova_blazar_pip_packages:
+  - blazar-nova
 
 nova_novnc_pip_packages:
   - websockify

@@ -317,6 +317,10 @@ discover_hosts_in_cells_interval = {{ nova_discover_hosts_in_cells_interval }}
 
 [filter_scheduler]
 max_io_ops_per_host = {{ nova_max_io_ops_per_host }}
+{% if nova_blazar_enabled and nova_blazar_scheduler_filters %}
+available_filters = nova.scheduler.filters.all_filters
+available_filters = blazarnova.scheduler.filters.blazar_filter.BlazarFilter
+{% endif %}
 enabled_filters = {{ _nova_scheduler_filters | join(',') }}
 host_subset_size = {{ nova_scheduler_host_subset_size }}
 track_instance_changes = {{ nova_scheduler_tracks_instance_changes }}

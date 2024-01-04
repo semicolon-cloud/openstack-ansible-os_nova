@@ -47,6 +47,11 @@ nova_venv_packages: |-
   {%- if nova_oslomsg_amqp1_enabled | bool %}
   {%-   set _ = pkg_list.extend(nova_optional_oslomsg_amqp1_pip_packages) %}
   {%- endif %}
+  {%- if nova_blazar_enabled | bool %}
+  {%-   if (nova_services['nova-scheduler']['group'] in group_names) %}
+  {%-     set _ = pkg_list.extend(nova_blazar_pip_packages) %}
+  {%-   endif %}
+  {%- endif %}
   {%- if ('novnc' in nova_console_proxy_types) %}
   {%-   set _ = pkg_list.extend(nova_novnc_pip_packages) %}
   {%- endif %}
@@ -136,6 +141,9 @@ _nova_scheduler_filters: |-
   {%   set filters = default_filters.split(',') %}
   {% else %}
   {%   set filters = default_filters %}
+  {% endif %}
+  {% if nova_blazar_enabled | bool %}
+  {%   set _ = filters.extend(nova_blazar_scheduler_filters) %}
   {% endif %}
   {{ filters + nova_scheduler_extra_filters }}
 
