@@ -262,8 +262,8 @@ nova_novncproxy_port: 6080
 nova_novncproxy_host: "{{ openstack_service_bind_address | default('0.0.0.0') }}"
 nova_novncproxy_base_uri: "{{ nova_novncproxy_proto }}://{{ external_lb_vip_address }}:{{ nova_novncproxy_port }}"
 nova_novncproxy_base_url: "{{ nova_novncproxy_base_uri }}/vnc_lite.html"
-nova_novncproxy_vncserver_proxyclient_address: "{{ (nova_management_address == 'localhost') | ternary('127.0.0.1', nova_management_address) }}"
-nova_novncproxy_vncserver_listen: "{{ (nova_management_address == 'localhost') | ternary('127.0.0.1', nova_management_address) }}"
+nova_novncproxy_vncserver_proxyclient_address: "{{ _nova_my_ip }}"
+nova_novncproxy_vncserver_listen: "{{ _nova_my_ip }}"
 nova_novncproxy_git_repo: "{{ novncproxy_git_repo | default('https://github.com/novnc/noVNC') }}"
 nova_novncproxy_git_install_branch: "{{ novncproxy_git_install_branch | default('master') }}"
 
@@ -302,7 +302,7 @@ nova_libvirt_inject_partition: -2
 nova_libvirt_inject_password: False
 nova_libvirt_disk_cachemodes: '{{ (nova_libvirt_images_rbd_pool | length > 0) | ternary("network=writeback", "") }}'
 nova_libvirt_hw_disk_discard: '{{ (nova_libvirt_images_rbd_pool | length > 0) | ternary("unmap", "ignore") }}'
-nova_libvirt_live_migration_inbound_addr: '{{ (nova_management_address == "localhost") | ternary("127.0.0.1", nova_management_address) }}'
+nova_libvirt_live_migration_inbound_addr: '{{ _nova_my_ip }}'
 
 ## Nova console
 # Set the console type for the compute host. Presently the only options are ["spice", "novnc", "serialconsole", "disabled"].
@@ -620,9 +620,8 @@ nova_pki_regen_cert: ''
 nova_pki_san: "{{ openstack_pki_san | default('DNS:' ~ ansible_facts['hostname'] ~ ',IP:' ~ management_address) }}"
 nova_pki_compute_san: >-
   {{
-    'DNS:' ~ ansible_facts['hostname'] ~ ',DNS:' ~ ansible_facts['nodename'] ~ ',IP:' ~ (nova_management_address == 'localhost') | ternary(
-    '127.0.0.1', nova_management_address) ~ (nova_libvirt_live_migration_inbound_addr != nova_management_address) |ternary(
-    ',IP:' ~ nova_libvirt_live_migration_inbound_addr, '')
+    'DNS:' ~ ansible_facts['hostname'] ~ ',DNS:' ~ ansible_facts['nodename'] ~ ',IP:' ~ _nova_my_ip ~ (
+      nova_libvirt_live_migration_inbound_addr != nova_management_address) |ternary(',IP:' ~ nova_libvirt_live_migration_inbound_addr, '')
   }}
 # Create client and server cert for compute hosts
 # This certiticate is used to secure TLS live migrations and VNC sessions
